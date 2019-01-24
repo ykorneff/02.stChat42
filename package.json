@@ -1,9 +1,24 @@
 {
-    "name": "stChat42",
-    "version": "0.0.1",
-    "description": "First socket.io app",
-    "dependencies": {
-        "express": "^4.16.4",
-        "socket.io": "^2.2.0"
-    }
+  "name": "stchat42",
+  "version": "0.0.1",
+  "description": "First socket.io app",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ykorneff/02.stChat42.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ykorneff/02.stChat42/issues"
+  },
+  "homepage": "https://github.com/ykorneff/02.stChat42#readme"
 }
