@@ -33,6 +33,14 @@ io.on('connection', function(socket){
         console.log(`Message: ${msg}`);
         io.emit('chat message', msg);
     })
+
+    socket.on('join chat', function(roomId,nickName){
+        app.get('/', function(req, res){
+            res.sendFile(`${__dirname}/chat.html` );
+        });
+        console.log(`Room: ${roomId}`);
+        console.log(`Nickname: ${nickName}`);
+    })
 });
 
 io.emit('some event', {for: 'evereyone'});
