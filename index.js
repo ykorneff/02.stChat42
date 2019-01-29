@@ -22,8 +22,13 @@ app.get('/', function(req, res){
     res.sendFile(`${__dirname}/index.html` );
 });
 
+app.get('/chat', function(req, res){
+    res.sendFile(`${__dirname}/chat.html` );
+});
+
+
 io.on('connection', function(socket){
-    console.log('a user connected');
+    //console.log('a user connected');
     //socket.broadcast.emit('hi');
     socket.on('disconnect', function (){
         console.log('user disconnected');
@@ -34,12 +39,15 @@ io.on('connection', function(socket){
         io.emit('chat message', msg);
     })
 
-    socket.on('join chat', function(roomId,nickName){
-        app.get('/', function(req, res){
-            res.sendFile(`${__dirname}/chat.html` );
+    socket.on('join chat', function(roomId){
+        socket.join(roomId);
+        app.get('/', function(req,res){
+            console.log('fsdfsf');
+            res.render('chat.html');
         });
+        //res.redirect('/chat');
         console.log(`Room: ${roomId}`);
-        console.log(`Nickname: ${nickName}`);
+        //console.log(`Nickname: ${nickName}`);
     })
 });
 
