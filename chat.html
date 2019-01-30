@@ -6,14 +6,41 @@
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script>
+            function makeId() {
+                var text = "";
+                var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                for (var i = 0; i < 5; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+                return text;
+            }
+
+            let roomId=localStorage.roomId;
+            let nickName=localStorage.nickName;
+            let sessionId=makeId;
+            let session = {
+                id: sessionId,
+                room: roomId,
+                userName: nickName
+            }
+            let message = {
+                id: -1,
+                from: nickName,
+                room: roomId,
+                text: ''
+            }
+
             $(function () {
                 var socket = io();
                 $('form').submit(function(e){
                     e.preventDefault(); // prevents page reloading
-                    socket.emit('chat message', $('#m').val());
+                    message.room=roomId;
+                    message.text=$('#m').val();
+                    socket.emit('chat message', message);
                     $('#m').val('');
                     return false;
                 });
+                //socket.emit('join chat',  roomId);
+                socket.emit('join chat',  session);
                 socket.on('chat message', function(msg){
                     $('#messages').append($('<li>').text(msg));
                     window.scrollTo(0, document.body.scrollHeight);
@@ -22,6 +49,7 @@
         </script>
     </head>
     <body>
+
         <ul id="messages"></ul>
         <form action="">
             <input id="m" autocomplete="off" /><button>Send</button>

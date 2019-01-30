@@ -6,10 +6,11 @@
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script>
-            function joinChat(){
-                let socket = io();
-                socket.emit('join chat',  $('#roomId').val());
-                
+                function joinChat(){
+                localStorage.setItem('roomId', $('#roomId').val());
+                localStorage.setItem('nickName', $('#nickName').val());
+
+                location.href = '/chat';
             }
         </script>
     </head>
