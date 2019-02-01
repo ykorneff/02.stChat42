@@ -44,7 +44,11 @@ io.on('connection', function(socket){
     socket.on('chat message', function(msg){
         console.log(`Message: ${msg}`);
         io.to(msg.room).emit('chat message', `${msg.from}: ${msg.text}`);
-    })
+    });
+
+    socket.on('typing message', (session) =>{
+        console.log(`${session.userName} is typing now in ${session.room}`);
+    });
 
     socket.on('join chat', function(session){
         sessions.push(session);
@@ -65,6 +69,8 @@ https.listen(3001, function(){
     console.log('listening on port 3001');
 })
 
+/*
 http.listen(3000, function(){
     console.log('listening on port 3000');
 })
+*/
