@@ -2,29 +2,29 @@
 <html>
     <head>
         <title>stChat42: a Socket.IO chat</title>
-        <link rel="stylesheet" href="../styles/app.css" type="text/css"/>
+        <link rel="stylesheet" href="../styles/app.css" type="text/css"/> 
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script>
-            $(function () {
-                var socket = io();
-                $('form').submit(function(e){
-                    e.preventDefault(); // prevents page reloading
-                    socket.emit('chat message', $('#m').val());
-                    $('#m').val('');
-                    return false;
-                });
-                socket.on('chat message', function(msg){
-                    $('#messages').append($('<li>').text(msg));
-                    window.scrollTo(0, document.body.scrollHeight);
-                });
-            });
+            function joinChat(){
+                localStorage.setItem('roomId', $('#roomId').val());
+                localStorage.setItem('nickName', $('#nickName').val());
+
+                location.href = '/chat';
+            }
+            function joinVideoChat(){
+                localStorage.setItem('roomId', $('#roomId').val());
+                localStorage.setItem('nickName', $('#nickName').val());
+
+                location.href = '/vchat';
+            }
         </script>
     </head>
     <body>
-        <ul id="messages"></ul>
-        <form action="">
-            <input id="m" autocomplete="off" /><button>Send</button>
-        </form>
+        <h3>Welcome to stChat42</h3>
+        <label for="roomId">Enter room Id to join:</label> <input id="roomId"> <br>
+        <label for="nickName">Enter your nickname:</label> <input id="nickName"> <br><br>
+        <button id="btnJoin" type="button" onclick="joinChat()">Join chat</button>
+        <button id="btnJoinVideo" type="button" onclick="joinVideoChat()">Join video chat</button>
     </body>
 </html>
