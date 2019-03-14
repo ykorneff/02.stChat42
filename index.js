@@ -10,6 +10,8 @@ console.log(__dirname);
 
 let fs = require('fs');
 
+//let participants = 0;
+
 let privateKey = fs.readFileSync('key.pem').toString();
 let certificate = fs.readFileSync('cert.pem').toString();
 let credentials = {
@@ -24,6 +26,13 @@ let io = require('socket.io')(https);
 let rooms = new Map;
 let currentRoom = {
     id: undefined,
+    owner: undefined,
+    visitorsAmount:0,
+    visitors: []
+};
+
+let room42 = {
+    id: 42,
     owner: undefined,
     visitorsAmount:0,
     visitors: []
@@ -46,6 +55,24 @@ let sessions=[];
 io.on('connection', function(socket){
     //console.log('a user connected');
     //socket.broadcast.emit('hi');
+
+    socket.on ('_sigInit', (msg)=> {
+        
+        
+        if (room42.visitorsAmount==0){
+            console.log(`room ${msg}: _sigInit:: initiator joined`);
+            io.to(msg).emit('_sigJoinedAsInitiatior');
+            room42.visitorsAmount++;
+        } else if (room42.visitorsAmount==1){
+            console.log(`room ${msg}: _sigInit:: follower joined`);
+            io.to(msg).emit('_sigJoinedAsFollower');
+            room42.visitorsAmount++;
+        } else {
+            console.log(`room ${msg} is full`);
+            io.to(msg).emit('_sigReject');
+        }
+
+    })
     socket.on('disconnect', function (){
         console.log('user disconnected');
     });
