@@ -9,7 +9,7 @@ app.use('/scripts', express.static('public'));
 console.log(__dirname);
 
 let fs = require('fs');
-
+let isReady=false;
 //let participants = 0;
 
 let privateKey = fs.readFileSync('key.pem').toString();
@@ -61,20 +61,30 @@ io.on('connection', function(socket){
         
         if (room42.visitorsAmount==0){
             console.log(`room ${msg}: _sigInit:: initiator joined`);
-            io.to(msg).emit('_sigJoinedAsInitiatior');
+            io.emit('_sigJoinedAsInitiatior',42);
             room42.visitorsAmount++;
         } else if (room42.visitorsAmount==1){
             console.log(`room ${msg}: _sigInit:: follower joined`);
-            io.to(msg).emit('_sigJoinedAsFollower');
+            io.emit('_sigJoinedAsFollower');
             room42.visitorsAmount++;
         } else {
             console.log(`room ${msg} is full`);
-            io.to(msg).emit('_sigReject');
+            io.emit('_sigReject');
         }
 
-    })
+    });
+
+    socket.on('_sigGotMedia',(msg)=>{
+        console.log(`room ${msg}: _sigGotMedia:: Got user media`);
+        if (room42.visitorsAmount==2){
+            isReady=true;
+        }
+        io.emit('_sigTrying',isReady);
+    });
+
     socket.on('disconnect', function (){
         console.log('user disconnected');
+        room42.visitorsAmount--;
     });
 
     socket.on('chat message', function(msg){
