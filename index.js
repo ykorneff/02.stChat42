@@ -82,6 +82,17 @@ io.on('connection', function(socket){
         io.emit('_sigTrying',isReady);
     });
 
+
+    socket.on('_sigMessage', (msg)=>{
+        console.log(`_sigMessage ${msg}`);
+        socket.emit('_sigMessage', msg);
+    });
+
+    socket.on('_sigBye', (msg)=>{
+        console.log(`ending call in room ${msg}`);
+        socket.emit('_sigBye');
+    })
+
     socket.on('disconnect', function (){
         console.log('user disconnected');
         room42.visitorsAmount--;

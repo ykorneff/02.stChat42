@@ -58,27 +58,16 @@ function createVideoElement(uName){
 function handleIceCandidate(event){
     console.log(`ICE canditate event ${event}`);
     if (event.canditate) {
-        signalMessage.type = 'candidate';
-        signalMessage.text = event.canditate.canditate;
-        signalMessage.id = event.canditate.sdpMid;
-        sendSignaling(signalMessage);
+
     } else {
         console.log('End of candidates.');
     }
 }
 
 function handleRemoteStreamAdded(event){
-        //add remote video element
-    let uName = makeId(5);
-    console.log(`Creating videoelement ${uName}`);
-    createVideoElement(uName);
     remoteStream = event.stream;
-    streams.push(event.stream);
-    document.getElementById(`videoFrom_${uName}`).srcObject=event.stream;
-    //videoElemints.push(document.getElementById(`videoFrom_${uName}`));
-    //videoElemints[videoElemints.length-1].srcObject = streams[streams.length-1];
+    remoteVideoElement.srcObject=event.stream;
     console.log(`Remote stream added`);
-    console.log(`VideoElement: ${videoElemints.length-1}`);
 }
 
 function handleRemoteStreamRemoved(event){
