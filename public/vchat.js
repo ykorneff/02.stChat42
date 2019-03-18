@@ -14,14 +14,20 @@ let isChannelReady=false;
 
 let socket = io();
 
-function handleIceCandidate(event){
-    console.log(`ICE canditate event ${event}`);
-    if (event.canditate) {
-
+function handleIceCandidate(event) {
+    console.log('icecandidate event: ', event);
+    if (event.candidate) {
+        socket.emit('_sigMessage',{
+        type: 'candidate',
+        label: event.candidate.sdpMLineIndex,
+        id: event.candidate.sdpMid,
+        candidate: event.candidate.candidate
+      });
     } else {
-        console.log('End of candidates.');
+      console.log('End of candidates.');
     }
-}
+  }
+
 
 function handleRemoteStreamAdded(event){
     remoteStream = event.stream;
@@ -86,7 +92,7 @@ function makeAnswer(){
     }).
     catch(function(err){
         console.log(`Error: ${err}`);
-        create
+        
     });
 }
 
