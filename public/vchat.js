@@ -163,9 +163,11 @@ socket.on('_sigMessage', (msg)=>{
         if(!isOwner && !isStarted){
             startAttempt();
         }
+        console.log('$$#@ 001:');
         peerConnection.setRemoteDescription(new RTCSessionDescription(msg));
         makeAnswer();
     } else if (msg.type==='answer' && isStarted){
+        console.log('$$#@ 002:');
         peerConnection.setRemoteDescription(new RTCSessionDescription(msg));
     } else if (msg.type==='candidate' && isStarted){
         var candidate = new RTCIceCandidate({
