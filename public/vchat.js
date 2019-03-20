@@ -1,18 +1,18 @@
-var currentConstraints ={
+let currentConstraints ={
     video: true,
     audio: true
 };
 
-var roomId=42;
-var isOwner=false;
+let roomId=42;
+let isOwner=false;
 var isReady=false;
-var isStarted=false;
-var localStream, remoteStream;
-var localVideoElement, remoteVideoElement;
-var peerConnection;
-var isChannelReady=false;
+let isStarted=false;
+let localStream, remoteStream;
+let localVideoElement, remoteVideoElement;
 
-var socket = io();
+let isChannelReady=false;
+
+let socket = io();
 
 function handleIceCandidate(event) {
     console.log('icecandidate event: ', event);
@@ -24,9 +24,9 @@ function handleIceCandidate(event) {
         candidate: event.candidate.candidate
       });
     } else {
-      console.log('End of candidates.');
+        console.log('End of candidates.');
     }
-  }
+}
 
 
 function handleRemoteStreamAdded(event){
@@ -69,7 +69,7 @@ function makeCall(){
 
 function startAttempt(){
     console.log(`## startAttempt: started=${isStarted}; ready=${isReady}; localstream=${typeof localStream}`);
-    if (!isStarted && typeof localStream !=='undefined' && isReady) {
+    if (!isStarted && (typeof localStream !=='undefined') && isReady) {
         console.log(`creating peer connection`);
         createPeerConnection();
         peerConnection.addStream(localStream);
@@ -78,6 +78,8 @@ function startAttempt(){
         if (isOwner){
             makeCall();
         }
+    } else {
+        console.log('startAttempt: do nothing')
     }
 }
 
@@ -110,9 +112,24 @@ function handleRemoteHangup() {
 
 socket.emit('_sigInit',roomId);
 
+navigator.mediaDevices.getUserMedia(currentConstraints).
+then((stream)=>{
+    localStream=stream;
+    isChannelReady = true;
+    localVideoElement = document.getElementById('localVideo');
+    localVideoElement.srcObject=localStream;
+    remoteVideoElement = document.getElementById('remoteVideo');
+   // isOwner=true;
+    socket.emit('_sigGotMedia', roomId);
+}).
+catch((err)=>{
+    console.log(err);
+});
+
 socket.on('_sigJoinedAsInitiatior', (msg)=>{
     console.log(`Joined as initiator to room ${msg}`);
-    navigator.mediaDevices.getUserMedia(currentConstraints).
+    isOwner=true;
+/*    navigator.mediaDevices.getUserMedia(currentConstraints).
     then((stream)=>{
         localStream=stream;
         isChannelReady = true;
@@ -125,8 +142,10 @@ socket.on('_sigJoinedAsInitiatior', (msg)=>{
     catch((err)=>{
         console.log(err);
     });
-
+*/
 });
+
+
 
 socket.on('_sigGotMedia', (msg)=>{
     console.log(`got media in ${msg}`);
@@ -156,7 +175,7 @@ socket.on('_sigReject', ()=>{
 });
 
 socket.on('_sigTrying', (msg)=>{
-    console.log(msg);
+    console.log(`--- ${msg}`);
     isReady=msg;
     console.log(`Trying... isReady = ${isReady}`);
     startAttempt();
@@ -164,7 +183,6 @@ socket.on('_sigTrying', (msg)=>{
 
 
 socket.on('_sigMessage', (msg)=>{
-    console.log(`^^^^ ${msg.type} ^^^^`);
     if (msg.type==='offer'){
         if(!isOwner && !isStarted){
             startAttempt();

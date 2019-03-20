@@ -57,8 +57,6 @@ io.on('connection', function(socket){
     //socket.broadcast.emit('hi');
 
     socket.on ('_sigInit', (msg)=> {
-        
-        
         if (room42.visitorsAmount==0){
             console.log(`room ${msg}: _sigInit:: initiator joined`);
             io.emit('_sigJoinedAsInitiatior',42);
@@ -76,11 +74,12 @@ io.on('connection', function(socket){
 
     socket.on('_sigGotMedia',(msg)=>{
         console.log(`room ${msg}: _sigGotMedia:: Got user media`);
+        console.log(`visitors entered: ${room42.visitorsAmount}`);
         if (room42.visitorsAmount==2){
             isReady=true;
         }
         io.emit('_sigTrying',isReady);
-        io.emit('_sigGotMedia','42');
+        //io.emit('_sigGotMedia','42');
     });
 
 
