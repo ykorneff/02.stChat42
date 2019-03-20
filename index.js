@@ -1,37 +1,37 @@
 //import './app.css';
 
-let path = require('path');
-let express = require('express');
+var path = require('path');
+var express = require('express');
 
-let app= express();
+var app= express();
 app.use('/styles', express.static('public'));
 app.use('/scripts', express.static('public'));
 console.log(__dirname);
 
-let fs = require('fs');
-let isReady=false;
-//let participants = 0;
+var fs = require('fs');
+var isReady=false;
+//var participants = 0;
 
-let privateKey = fs.readFileSync('key.pem').toString();
-let certificate = fs.readFileSync('cert.pem').toString();
-let credentials = {
+var privateKey = fs.readFileSync('key.pem').toString();
+var certificate = fs.readFileSync('cert.pem').toString();
+var credentials = {
   key: privateKey,
   cert: certificate,
 };
-let https = require('https').Server(credentials,app);
-//let http = require('http').Server(app);
-let io = require('socket.io')(https);
-//let io = require('socket.io')(http);
+var https = require('https').Server(credentials,app);
+//var http = require('http').Server(app);
+var io = require('socket.io')(https);
+//var io = require('socket.io')(http);
 
-let rooms = new Map;
-let currentRoom = {
+var rooms = new Map;
+var currentRoom = {
     id: undefined,
     owner: undefined,
     visitorsAmount:0,
     visitors: []
 };
 
-let room42 = {
+var room42 = {
     id: 42,
     owner: undefined,
     visitorsAmount:0,
@@ -51,7 +51,7 @@ app.get('/vchat', (req,res) => {
     res.sendFile(`${__dirname}/vchat.html` );
 });
 
-let sessions=[];
+var sessions=[];
 io.on('connection', function(socket){
     //console.log('a user connected');
     //socket.broadcast.emit('hi');
@@ -85,13 +85,13 @@ io.on('connection', function(socket){
 
 
     socket.on('_sigMessage', (msg)=>{
-        console.log(`_sigMessage ${msg}`);
-        socket.emit('_sigMessage', msg);
+        console.log(`_sigMessage ${msg.type}`);
+        io.emit('_sigMessage', msg);
     });
 
     socket.on('_sigBye', (msg)=>{
         console.log(`ending call in room ${msg}`);
-        socket.emit('_sigBye');
+        io.emit('_sigBye');
     })
 
     socket.on('disconnect', function (){

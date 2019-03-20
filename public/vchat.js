@@ -1,18 +1,18 @@
-let currentConstraints ={
+var currentConstraints ={
     video: true,
     audio: true
 };
 
-let roomId=42;
-let isOwner=false;
+var roomId=42;
+var isOwner=false;
 var isReady=false;
-let isStarted=false;
-let localStream, remoteStream;
-let localVideoElement, remoteVideoElement;
+var isStarted=false;
+var localStream, remoteStream;
+var localVideoElement, remoteVideoElement;
+var peerConnection;
+var isChannelReady=false;
 
-let isChannelReady=false;
-
-let socket = io();
+var socket = io();
 
 function handleIceCandidate(event) {
     console.log('icecandidate event: ', event);
@@ -164,6 +164,7 @@ socket.on('_sigTrying', (msg)=>{
 
 
 socket.on('_sigMessage', (msg)=>{
+    console.log(`^^^^ ${msg.type} ^^^^`);
     if (msg.type==='offer'){
         if(!isOwner && !isStarted){
             startAttempt();
