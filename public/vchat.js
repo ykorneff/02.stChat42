@@ -128,6 +128,11 @@ socket.on('_sigJoinedAsInitiatior', (msg)=>{
 
 });
 
+socket.on('_sigGotMedia', (msg)=>{
+    console.log(`got media in ${msg}`);
+    startAttempt();
+});
+
 socket.on('_sigJoinedAsFollower', ()=>{
     console.log(`Joined as follower`);
     //isReady

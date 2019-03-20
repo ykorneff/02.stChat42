@@ -80,6 +80,7 @@ io.on('connection', function(socket){
             isReady=true;
         }
         io.emit('_sigTrying',isReady);
+        io.emit('_sigGotMedia','42');
     });
 
 
