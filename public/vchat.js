@@ -9,11 +9,25 @@ var isReady=false;
 let isStarted=false;
 let localStream, remoteStream;
 let localVideoElement, remoteVideoElement;
-
+var turnReady;
 let isChannelReady=false;
 
 let socket = io();
 
+var pcConfig = {
+    'iceServers': [{
+      'urls': 'stun:stun.l.google.com:19302'
+    }]
+  };
+
+/*
+  if (location.hostname !== 'localhost') {
+    requestTurn(
+      'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
+    );
+  }
+
+*/
 function handleIceCandidate(event) {
     console.log('icecandidate event: ', event);
     if (event.candidate) {
@@ -41,7 +55,7 @@ function handleRemoteStreamRemoved(event){
 
 function createPeerConnection(){
     try {
-        peerConnection = new RTCPeerConnection(null);
+        peerConnection = new RTCPeerConnection(pcConfig);
         peerConnection.onicecandidate = handleIceCandidate;
         peerConnection.onaddstream = handleRemoteStreamAdded;
         peerConnection.onremovestream = handleRemoteStreamRemoved;
@@ -82,6 +96,35 @@ function startAttempt(){
         console.log('startAttempt: do nothing')
     }
 }
+
+function requestTurn(turnURL) {
+    var turnExists = false;
+    for (var i in pcConfig.iceServers) {
+      if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
+        turnExists = true;
+        turnReady = true;
+        break;
+      }
+    }
+    if (!turnExists) {
+      console.log('Getting TURN server from ', turnURL);
+      // No TURN server. Get one from computeengineondemand.appspot.com:
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var turnServer = JSON.parse(xhr.responseText);
+          console.log('Got TURN server: ', turnServer);
+          pcConfig.iceServers.push({
+            'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
+            'credential': turnServer.password
+          });
+          turnReady = true;
+        }
+      };
+      xhr.open('GET', turnURL, true);
+      xhr.send();
+    }
+  }
 
 function makeAnswer(){
     console.log('Sending answer to peer.');
