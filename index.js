@@ -1,29 +1,38 @@
 //import './app.css';
 
-let path = require('path');
-let express = require('express');
+var path = require('path');
+var express = require('express');
 
-let app= express();
+var app= express();
 app.use('/styles', express.static('public'));
 app.use('/scripts', express.static('public'));
 console.log(__dirname);
 
-let fs = require('fs');
+var fs = require('fs');
+var isReady=false;
+//var participants = 0;
 
-let privateKey = fs.readFileSync('key.pem').toString();
-let certificate = fs.readFileSync('cert.pem').toString();
-let credentials = {
+var privateKey = fs.readFileSync('key.pem').toString();
+var certificate = fs.readFileSync('cert.pem').toString();
+var credentials = {
   key: privateKey,
   cert: certificate,
 };
-let https = require('https').Server(credentials,app);
-//let http = require('http').Server(app);
-let io = require('socket.io')(https);
-//let io = require('socket.io')(http);
+var https = require('https').Server(credentials,app);
+//var http = require('http').Server(app);
+var io = require('socket.io')(https);
+//var io = require('socket.io')(http);
 
-let rooms = new Map;
-let currentRoom = {
+var rooms = new Map;
+var currentRoom = {
     id: undefined,
+    owner: undefined,
+    visitorsAmount:0,
+    visitors: []
+};
+
+var room42 = {
+    id: 42,
     owner: undefined,
     visitorsAmount:0,
     visitors: []
@@ -42,12 +51,52 @@ app.get('/vchat', (req,res) => {
     res.sendFile(`${__dirname}/vchat.html` );
 });
 
-let sessions=[];
+var sessions=[];
 io.on('connection', function(socket){
     //console.log('a user connected');
     //socket.broadcast.emit('hi');
+
+    socket.on ('_sigInit', (msg)=> {
+        if (room42.visitorsAmount==0){
+            console.log(`room ${msg}: _sigInit:: initiator joined`);
+            io.emit('_sigJoinedAsInitiatior',42);
+            room42.visitorsAmount++;
+        } else if (room42.visitorsAmount==1){
+            console.log(`room ${msg}: _sigInit:: follower joined`);
+            io.emit('_sigJoinedAsFollower');
+            room42.visitorsAmount++;
+        } else {
+            console.log(`room ${msg} is full`);
+            io.emit('_sigReject');
+        }
+
+    });
+
+    socket.on('_sigGotMedia',(msg)=>{
+        console.log(`room ${msg}: _sigGotMedia:: Got user media`);
+        console.log(`visitors entered: ${room42.visitorsAmount}`);
+/*        if (room42.visitorsAmount==2){
+            isReady=true;
+        }
+        */
+        //io.emit('_sigTrying',isReady);
+        io.emit('_sigGotMedia','42');
+    });
+
+
+    socket.on('_sigMessage', (msg)=>{
+        console.log(`_sigMessage ${msg.type}`);
+        io.emit('_sigMessage', msg);
+    });
+
+    socket.on('_sigBye', (msg)=>{
+        console.log(`ending call in room ${msg}`);
+        io.emit('_sigBye');
+    })
+
     socket.on('disconnect', function (){
         console.log('user disconnected');
+        room42.visitorsAmount--;
     });
 
     socket.on('chat message', function(msg){
