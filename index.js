@@ -75,11 +75,12 @@ io.on('connection', function(socket){
     socket.on('_sigGotMedia',(msg)=>{
         console.log(`room ${msg}: _sigGotMedia:: Got user media`);
         console.log(`visitors entered: ${room42.visitorsAmount}`);
-        if (room42.visitorsAmount==2){
+/*        if (room42.visitorsAmount==2){
             isReady=true;
         }
-        io.emit('_sigTrying',isReady);
-        //io.emit('_sigGotMedia','42');
+        */
+        //io.emit('_sigTrying',isReady);
+        io.emit('_sigGotMedia','42');
     });
 
 

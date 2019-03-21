@@ -154,8 +154,8 @@ socket.on('_sigGotMedia', (msg)=>{
 
 socket.on('_sigJoinedAsFollower', ()=>{
     console.log(`Joined as follower`);
-    //isReady
-    navigator.mediaDevices.getUserMedia(currentConstraints).
+    isReady = true;
+ /*   navigator.mediaDevices.getUserMedia(currentConstraints).
     then((stream)=>{
         localStream=stream;
         isChannelReady = true;
@@ -167,7 +167,7 @@ socket.on('_sigJoinedAsFollower', ()=>{
     catch((err)=>{
         console.log(err);
     });
-
+*/
 });
 
 socket.on('_sigReject', ()=>{
