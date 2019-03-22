@@ -13,21 +13,20 @@ var turnReady;
 let isChannelReady=false;
 
 let socket = io();
-
+//'{"rtcpMuxPolicy":"require","bundlePolicy":"max-bundle","iceServers":[{"urls":["stun:74.125.143.127:19302","stun:[2a00:1450:4013:c03::7f]:19302"]},{"urls":["turn:74.125.143.127:19305?transport=udp","turn:[2a00:1450:4013:c03::7f]:19305?transport=udp","turn:74.125.143.127:19305?transport=tcp","turn:[2a00:1450:4013:c03::7f]:19305?transport=tcp"],"username":"CNuy2uQFEgYjS2n6HWYYzc/s6OMTIICjBQ","credential":"C2DUTHpstdak9f2VcFOl/sfV35o=","maxRateKbps":"8000"}],"certificates":[{}]}';
 var pcConfig = {
-    'iceServers': [{
-      'urls': 'stun:stun.l.google.com:19302'
-    }]
-  };
+    "rtcpMuxPolicy":"require",
+    "bundlePolicy":"max-bundle",
+    "iceServers":[
+        {"urls":["stun:74.125.143.127:19302","stun:[2a00:1450:4013:c03::7f]:19302"]},
+        {"urls":["turn:74.125.143.127:19305?transport=udp",
+                "turn:[2a00:1450:4013:c03::7f]:19305?transport=udp",
+                "turn:74.125.143.127:19305?transport=tcp",
+                "turn:[2a00:1450:4013:c03::7f]:19305?transport=tcp"],
+                "username":"CNuy2uQFEgYjS2n6HWYYzc/s6OMTIICjBQ",
+                "credential":"C2DUTHpstdak9f2VcFOl/sfV35o=","maxRateKbps":"8000"}],
+    };
 
-/*
-  if (location.hostname !== 'localhost') {
-    requestTurn(
-      'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
-    );
-  }
-
-*/
 function handleIceCandidate(event) {
     console.log('icecandidate event: ', event);
     if (event.candidate) {
@@ -97,35 +96,6 @@ function startAttempt(){
     }
 }
 
-function requestTurn(turnURL) {
-    var turnExists = false;
-    for (var i in pcConfig.iceServers) {
-      if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
-        turnExists = true;
-        turnReady = true;
-        break;
-      }
-    }
-    if (!turnExists) {
-      console.log('Getting TURN server from ', turnURL);
-      // No TURN server. Get one from computeengineondemand.appspot.com:
-      var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var turnServer = JSON.parse(xhr.responseText);
-          console.log('Got TURN server: ', turnServer);
-          pcConfig.iceServers.push({
-            'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
-            'credential': turnServer.password
-          });
-          turnReady = true;
-        }
-      };
-      xhr.open('GET', turnURL, true);
-      xhr.send();
-    }
-  }
-
 function makeAnswer(){
     console.log('Sending answer to peer.');
 
@@ -162,7 +132,6 @@ then((stream)=>{
     localVideoElement = document.getElementById('localVideo');
     localVideoElement.srcObject=localStream;
     remoteVideoElement = document.getElementById('remoteVideo');
-   // isOwner=true;
     socket.emit('_sigGotMedia', roomId);
 }).
 catch((err)=>{
@@ -172,20 +141,6 @@ catch((err)=>{
 socket.on('_sigJoinedAsInitiatior', (msg)=>{
     console.log(`Joined as initiator to room ${msg}`);
     isOwner=true;
-/*    navigator.mediaDevices.getUserMedia(currentConstraints).
-    then((stream)=>{
-        localStream=stream;
-        isChannelReady = true;
-        localVideoElement = document.getElementById('localVideo');
-        localVideoElement.srcObject=localStream;
-        remoteVideoElement = document.getElementById('remoteVideo');
-        isOwner=true;
-        socket.emit('_sigGotMedia', roomId);
-    }).
-    catch((err)=>{
-        console.log(err);
-    });
-*/
 });
 
 
@@ -198,19 +153,6 @@ socket.on('_sigGotMedia', (msg)=>{
 socket.on('_sigJoinedAsFollower', ()=>{
     console.log(`Joined as follower`);
     isReady = true;
- /*   navigator.mediaDevices.getUserMedia(currentConstraints).
-    then((stream)=>{
-        localStream=stream;
-        isChannelReady = true;
-        localVideoElement = document.getElementById('localVideo');
-        localVideoElement.srcObject=localStream;
-        remoteVideoElement = document.getElementById('remoteVideo');
-        socket.emit('_sigGotMedia', roomId);
-    }).
-    catch((err)=>{
-        console.log(err);
-    });
-*/
 });
 
 socket.on('_sigReject', ()=>{
