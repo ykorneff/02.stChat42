@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="../styles/app.css" type="text/css"/>
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-        <script src="../scripts/vchat.js"></script>
+        <script async src="../scripts/vchat.js"></script>
     </head>
     <body>
         <video id="localVideo" muted="false" autoplay class="localVideo"></video>
@@ -15,6 +15,10 @@
         <input id="m" autocomplete="off"/><button id="btnSend" onclick="sendButtonOnClick()">Send</button>
         <br>
         <button id="btnScreenShare" onclick="screenShareButtonOnClick()">Screen share</button>
+        <br>
+        <input type="file" id="chooseFile" name="files" onchange="fileInfoOnChange()"/>
+        
+        <button id="btnSendFile" onclick="sendFileButtonOnClick()">Send file</button>
     </body>
 </html>
 

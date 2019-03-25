@@ -14,6 +14,44 @@ let isChannelReady=false;
 
 let dataChannel;
 
+let fileReader;
+
+//File send:
+let receiveBuffer = [];
+let receivedSize = 0;
+
+let bytesPrev = 0;
+let timestampPrev = 0;
+let timestampStart;
+let statsInterval = null;
+let bitrateMax = 0;
+
+
+let fileInput = document.getElementById('chooseFile');
+
+function fileInfoOnChange (){
+    let file = fileInput.files[0];
+    if (!file) {
+        console.log(`No file chosen`);
+    } else {
+        console.log(file);
+    }
+    
+}
+
+function sendFile(){
+    fileReader = new FileReader();
+    fileReader.addEventListener('load', e => {
+        console.log('FileRead.onload ', e);
+        dataChannel.send(e.target.result);
+    });
+
+}
+
+function sendFileButtonOnClick(){
+    sendFile();
+}
+
 let socket = io();
 //'{"rtcpMuxPolicy":"require","bundlePolicy":"max-bundle","iceServers":[{"urls":["stun:74.125.143.127:19302","stun:[2a00:1450:4013:c03::7f]:19302"]},{"urls":["turn:74.125.143.127:19305?transport=udp","turn:[2a00:1450:4013:c03::7f]:19305?transport=udp","turn:74.125.143.127:19305?transport=tcp","turn:[2a00:1450:4013:c03::7f]:19305?transport=tcp"],"username":"CNuy2uQFEgYjS2n6HWYYzc/s6OMTIICjBQ","credential":"C2DUTHpstdak9f2VcFOl/sfV35o=","maxRateKbps":"8000"}],"certificates":[{}]}';
 var pcConfig = {
@@ -28,6 +66,16 @@ var pcConfig = {
                 "username":"CNuy2uQFEgYjS2n6HWYYzc/s6OMTIICjBQ",
                 "credential":"C2DUTHpstdak9f2VcFOl/sfV35o=","maxRateKbps":"8000"}],
     };
+
+function screenShareButtonOnClick(){
+    navigator.mediaDevices.getDisplayMedia({video:true}).
+    then((stream)=>{
+        localStream=stream; 
+        localVideoElement.srcObject=localStream;
+        peerConnection.addStream(localStream);
+    }).
+    catch((e)=>{console.log(e)});
+}
 
 function handleIceCandidate(event) {
     console.log('icecandidate event: ', event);
