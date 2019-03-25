@@ -47,8 +47,22 @@ function handleDataChannelOpen (event) {
     console.log(`dataChannel.OnOpen ${event}`);
 };
 
+function sendButtonOnClick() {
+    let  message;
+    
+    message=document.getElementById('m').value;
+    dataChannel.send(message);
+    console.log(`message: \n${message}\nsent`);
+}
+
 function handleDataChannelMessageReceived (event) {
     console.log(`dataChannel.OnMessage: ${event.data}`);
+    var ul = document.getElementById("messages");
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode(event.data));
+    ul.appendChild(li);
+    //document.getElementById('messages').append($('<li>').text(event.data));
+    //window.scrollTo(0, document.body.scrollHeight);
 };
 
 function handleDataChannelError (error) {
