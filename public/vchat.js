@@ -12,6 +12,8 @@ let localVideoElement, remoteVideoElement;
 var turnReady;
 let isChannelReady=false;
 
+let dataChannel;
+
 let socket = io();
 //'{"rtcpMuxPolicy":"require","bundlePolicy":"max-bundle","iceServers":[{"urls":["stun:74.125.143.127:19302","stun:[2a00:1450:4013:c03::7f]:19302"]},{"urls":["turn:74.125.143.127:19305?transport=udp","turn:[2a00:1450:4013:c03::7f]:19305?transport=udp","turn:74.125.143.127:19305?transport=tcp","turn:[2a00:1450:4013:c03::7f]:19305?transport=tcp"],"username":"CNuy2uQFEgYjS2n6HWYYzc/s6OMTIICjBQ","credential":"C2DUTHpstdak9f2VcFOl/sfV35o=","maxRateKbps":"8000"}],"certificates":[{}]}';
 var pcConfig = {
@@ -41,6 +43,44 @@ function handleIceCandidate(event) {
     }
 }
 
+function handleDataChannelOpen (event) {
+    console.log(`dataChannel.OnOpen ${event}`);
+};
+
+function sendButtonOnClick() {
+    let  message;
+    
+    message=document.getElementById('m').value;
+    dataChannel.send(message);
+    console.log(`message: \n${message}\nsent`);
+}
+
+function handleDataChannelMessageReceived (event) {
+    console.log(`dataChannel.OnMessage: ${event.data}`);
+    var ul = document.getElementById("messages");
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode(event.data));
+    ul.appendChild(li);
+    //document.getElementById('messages').append($('<li>').text(event.data));
+    //window.scrollTo(0, document.body.scrollHeight);
+};
+
+function handleDataChannelError (error) {
+    console.log(`dataChannel.OnError: ${error}`);
+};
+
+function handleDataChannelClose (event) {
+    console.log(`dataChannel.OnClose ${event}`);
+};
+
+function handleChannelCallback (event) {
+     var receiveChannel = event.channel;
+     receiveChannel.onopen = handleDataChannelOpen;
+     receiveChannel.onmessage = handleDataChannelMessageReceived;
+     receiveChannel.onerror = handleDataChannelError;
+     receiveChannel.onclose = handleDataChannelClose;
+};
+
 
 function handleRemoteStreamAdded(event){
     remoteStream = event.stream;
@@ -55,10 +95,17 @@ function handleRemoteStreamRemoved(event){
 function createPeerConnection(){
     try {
         peerConnection = new RTCPeerConnection(pcConfig);
+        peerConnection.ondatachannel = handleChannelCallback;
         peerConnection.onicecandidate = handleIceCandidate;
         peerConnection.onaddstream = handleRemoteStreamAdded;
         peerConnection.onremovestream = handleRemoteStreamRemoved;
         console.log('Created RTCPeerConnnection');
+        dataChannel = peerConnection.createDataChannel('dataChannelName');
+
+        dataChannel.onopen = handleDataChannelOpen;
+        dataChannel.onmessage = handleDataChannelMessageReceived;
+        dataChannel.onerror = handleDataChannelError;
+        dataChannel.onclose = handleDataChannelClose;
     }
     catch (err){
         console.log('Failed to create PeerConnection, exception: ' + err.message);
