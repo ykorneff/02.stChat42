@@ -48,6 +48,7 @@ app.get('/chat', function(req, res){
 });
 
 app.get('/vchat', (req,res) => {
+    console.log(req);
     res.sendFile(`${__dirname}/vchat.html` );
 });
 
