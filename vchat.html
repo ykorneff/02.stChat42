@@ -8,8 +8,13 @@
         <script src="../scripts/vchat.js"></script>
     </head>
     <body>
-        <video id="localVideo" muted="false" autoplay class="localVideo"></video> <br>
+        <video id="localVideo" muted="false" autoplay class="localVideo"></video>
         <video id="remoteVideo" muted="false" autoplay class="remoteVideo"></video> <br>
+        <ul id="messages"></ul>
+        
+        <input id="m" autocomplete="off"/><button id="btnSend" onclick="sendButtonOnClick()">Send</button>
+        <br>
+        <button id="btnScreenShare" onclick="screenShareButtonOnClick()">Screen share</button>
     </body>
 </html>
 
