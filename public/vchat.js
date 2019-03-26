@@ -39,12 +39,36 @@ function fileInfoOnChange (){
     
 }
 
-function sendFile(){
-    fileReader = new FileReader();
-    fileReader.addEventListener('load', e => {
-        console.log('FileRead.onload ', e);
-        dataChannel.send(e.target.result);
+function sendFileInChunks(file) {
+    const chunkSize = 16384;
+    let offset = 0;
+
+    const chunks = [];
+
+    if (file.size < offset + chunkSize) {
+        sendChunkAsync(file);
+        return;
+    }
+
+    while (file.size > offset) {
+        chunks.push(file.slice(offset, offset + chunkSize));
+        offset += chunkSize;
+    }
+
+    Promise.all(chunks.map(sendChunkAsync))
+        .then(() => console.info('Finished sending file to peer.'));
+}
+
+function sendChunkAsync(chunk) {
+    return readAsArrayBufferAsync(chunk).then((arrayBuffer) => {
+        dataChannel.send(arrayBuffer);
+        console.log('File chunk of size', arrayBuffer.byteLength, 'was sent to peer.');
+        return Promise.resolve();
     });
+}
+
+function sendFile(){
+    
 
 }
 
